@@ -1,0 +1,27 @@
+{
+    "include": [
+        "apps",
+        "breeding_system",
+        "manage.py"
+    ],
+    "exclude": [
+        "**/node_modules",
+        "**/__pycache__",
+        "frontend"
+    ],
+    "extraPaths": [
+        "./apps"
+    ],
+    "typeCheckingMode": "basic",
+    "reportMissingImports": "none",
+    "reportMissingTypeStubs": false,
+    "reportUnknownMemberType": false,
+    "reportUnknownVariableType": false,
+    "reportUnknownArgumentType": false,
+    "reportUnknownParameterType": false,
+    "reportUnusedImport": "warning",
+    "reportUnusedVariable": "warning",
+    "reportGeneralTypeIssues": "none",
+    "pythonVersion": "3.12",
+    "pythonPlatform": "Windows"
+}
