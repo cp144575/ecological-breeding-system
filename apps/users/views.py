@@ -32,6 +32,9 @@ import io
 from django.core.files.base import ContentFile
 import os
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -156,8 +159,9 @@ class UserProfileViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.
             return Response({'error': '图片处理失败'}, status=status.HTTP_400_BAD_REQUEST)
         except MemoryError:
             return Response({'error': '图片过大，处理失败'}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({'error': f'图片处理失败: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception:
+            logger.exception("Avatar upload processing failed for user_id=%s", user.id)
+            return Response({'error': '图片处理失败'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         finally:
             Image.MAX_IMAGE_PIXELS = max_image_pixels_backup
 
