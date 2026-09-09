@@ -31,4 +31,5 @@ def main():
 
 
 if __name__ == '__main__':
+    # Security dependency refresh keeps the management entry point unchanged.
     main()
