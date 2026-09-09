@@ -161,7 +161,7 @@ class UserProfileViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.
             return Response({'error': '图片过大，处理失败'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception:
             # 详细异常仅写入服务端日志，避免将内部实现信息返回给客户端。
-            logger.exception("Avatar upload processing failed")
+            logger.exception("Avatar upload processing failed (details kept server-side)")
             return Response({'error': '图片处理失败'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         finally:
             Image.MAX_IMAGE_PIXELS = max_image_pixels_backup
