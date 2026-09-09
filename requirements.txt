@@ -12,6 +12,6 @@ drf-spectacular==0.29.0
 python-dateutil==2.9.0.post0
 pytz==2025.2
 channels==4.1.0
-daphne==4.2.2
-requests==2.33.0
-python-dotenv==1.2.2
+daphne==4.2.3
+requests==2.34.2
+python-dotenv==1.2.3
