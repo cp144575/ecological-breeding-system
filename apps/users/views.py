@@ -20,7 +20,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
 from .models import FarmerProfile, Certification
 from .serializers import (
-    UserDetailSerializer, RegisterSerializer, FarmerProfileSerializer, 
+    UserDetailSerializer, RegisterSerializer, FarmerProfileSerializer,
     CertificationSerializer, CustomTokenObtainPairSerializer
 )
 from apps.core.utils import BaseOwnerViewSet, send_refresh_signal
@@ -109,10 +109,10 @@ class UserProfileViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.
         """
         user = request.user
         avatar_file = request.FILES.get('avatar')
-        
+
         if not avatar_file:
             return Response({'error': '未选择图片文件'}, status=status.HTTP_400_BAD_REQUEST)
-            
+
         filename = os.path.basename(avatar_file.name)
         if not re.match(r'^[\u4e00-\u9fa5a-zA-Z0-9_.-]+$', filename):
             return Response({'error': '文件名不允许包含特殊字符'}, status=status.HTTP_400_BAD_REQUEST)
@@ -120,12 +120,12 @@ class UserProfileViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.
         # 验证文件大小 (5MB)
         if avatar_file.size > 5 * 1024 * 1024:
             return Response({'error': '图片大小不能超过5MB'}, status=status.HTTP_400_BAD_REQUEST)
-            
+
         # 验证文件类型
         ext = os.path.splitext(avatar_file.name)[1].lower()
         if ext not in ['.jpg', '.jpeg', '.png', '.gif']:
             return Response({'error': '请上传JPG/PNG/GIF格式图片'}, status=status.HTTP_400_BAD_REQUEST)
-            
+
         max_image_pixels_backup = Image.MAX_IMAGE_PIXELS
         try:
             Image.MAX_IMAGE_PIXELS = None
@@ -160,7 +160,8 @@ class UserProfileViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.
         except MemoryError:
             return Response({'error': '图片过大，处理失败'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception:
-            logger.exception("Avatar upload processing failed for user_id=%s", user.id)
+            # 详细异常仅写入服务端日志，避免将内部实现信息返回给客户端。
+            logger.exception("Avatar upload processing failed")
             return Response({'error': '图片处理失败'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         finally:
             Image.MAX_IMAGE_PIXELS = max_image_pixels_backup
@@ -173,10 +174,10 @@ class UserProfileViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.
         user = request.user
         old_password = request.data.get('old_password')
         new_password = request.data.get('new_password')
-        
+
         if not user.check_password(old_password):
             return Response({'error': '旧密码错误'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         user.set_password(new_password)
         user.save()
         send_refresh_signal(data_type="user")
@@ -190,12 +191,12 @@ class UserProfileViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.
         user = self.get_object()
         if user == request.user:
             return Response({'error': '不能禁用自己'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         user.is_active = not user.is_active
         user.save()
-        
+
         send_refresh_signal(data_type="user")
-        
+
         status_str = "启用" if user.is_active else "禁用"
         return Response({'message': f'用户已{status_str}'})
 
@@ -207,7 +208,7 @@ class CertificationViewSet(BaseOwnerViewSet):
     serializer_class = CertificationSerializer
     filterset_fields = ['status']
     search_fields = ['farmer__farmer_name']
-    
+
     def get_permissions(self):
         """
         覆盖基础权限：认证申请不需要先通过认证
@@ -224,11 +225,11 @@ class CertificationViewSet(BaseOwnerViewSet):
         user = request.user
         if not hasattr(user, 'farmer_profile'):
             return Response({'error': '当前用户不是养殖户'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         cert = Certification.objects.filter(farmer=user.farmer_profile).order_by('-created_at').first()
         if not cert:
             return Response(None, status=status.HTTP_200_OK)
-            
+
         serializer = self.get_serializer(cert)
         return Response(serializer.data)
 
@@ -240,15 +241,15 @@ class CertificationViewSet(BaseOwnerViewSet):
         instance = self.get_object()
         status_val = request.data.get('status') # 1: 通过, 2: 驳回
         remark = request.data.get('remark') or request.data.get('audit_remark', '')
-        
+
         if status_val not in [1, 2]:
             return Response({'error': '无效的状态值'}, status=status.HTTP_400_BAD_REQUEST)
-            
+
         instance.status = status_val
         instance.audit_remark = remark
         instance.audit_time = timezone.now()
         instance.save()
-        
+
         # 如果审核通过，同步更新养殖户 Profile 的认证状态
         if status_val == 1:
             send_refresh_signal(data_type="user") # 同时刷新用户信息以更新认证图标
@@ -259,9 +260,9 @@ class CertificationViewSet(BaseOwnerViewSet):
             if instance.id_card:
                 farmer.id_card = instance.id_card
             farmer.save()
-            
+
         send_refresh_signal(data_type="certification")
-        
+
         return Response({'message': '审核操作成功'})
 
 class FarmerViewSet(viewsets.ReadOnlyModelViewSet):
