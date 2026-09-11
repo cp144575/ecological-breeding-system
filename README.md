@@ -303,7 +303,7 @@ npm run build
 - 前端依赖已完成一轮 Dependabot 安全更新。
 - 头像上传异常不再直接向客户端返回内部异常信息。
 - CodeQL Python 与 JavaScript/TypeScript 检查已通过相关修复。
-- Django REST Framework 的安全告警正在通过独立依赖更新处理，最终版本以 `requirements.txt` 和 GitHub Security 页面为准。
+- Django REST Framework 的安全告警正在通过独立依赖更新处理，最终版本以 `requirements.txt` 和 GitHub Security 页面为��。
 
 > 依赖版本以仓库文件和 GitHub Security 页面为最终准据。
 
@@ -337,5 +337,3 @@ npm run build
 项目中的溯源二维码查询功能依赖本地开发环境提供的后端服务。如果使用手机等其他设备扫描二维码进行溯源查询，**扫描设备必须与运行项目后端服务的电脑处于同一个局域网（LAN）内**，并且后端服务需要监听局域网地址，例如 `0.0.0.0:8000`。
 
 如果手机与运行后端服务的电脑不在同一个局域网，或者二维码中使用的是 `localhost`、`127.0.0.1` 等仅对本机有效的地址，扫码后将无法正常访问溯源页面。
-
-> **注意：** 以上账号仅用于项目本地开发和测试。生产环境部署后请立即修改默认密码，不要继续使用 `123456`。
