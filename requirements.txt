@@ -5,7 +5,7 @@ django-cors-headers==4.9.0
 PyMySQL==1.1.2
 pandas==2.2.3
 numpy==1.26.4
-pillow==12.3.0
+pillow==13.0.0
 qrcode==7.4.2
 django-filter==24.3
 drf-spectacular==0.29.0
